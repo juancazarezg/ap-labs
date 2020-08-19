@@ -11,17 +11,25 @@ This is the first challenge in your Advanced Programming Class.
 
 Build Requirements
 ------------------
-```
+``
 # Build Requirements here
-```
+`To build you need a computer that runs a version of python
+``
 
 
 How to build
 ------------
-```
+``
+Open the command line
+
+	First cd to where the 'firstcodechallenge.py' is located
+
+	In case you want to change the input you need to edit the .py file and change the variable lst
+
+	Execute the 'python -m py_compile firstcodechallenge.py' command`
 # instructions here
 ```
-
+For running the file you just need to run the coomand 'python firstcodechallenge.py'
 
 How to Run
 ----------
