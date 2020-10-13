@@ -2,6 +2,7 @@
 package main
 
 import (
+	"flag"
 	"io"
 	"log"
 	"net"
@@ -11,7 +12,8 @@ import (
 func handleConn(c net.Conn) {
 	defer c.Close()
 	for {
-		_, err := io.WriteString(c, time.Now().Format("15:04:05\n"))
+		//Get time from local timezone specified at the command line
+		_, err := io.WriteString(c, time.Now().Local().Format("15:04:05\n"))
 		if err != nil {
 			return // e.g., client disconnected
 		}
@@ -20,7 +22,11 @@ func handleConn(c net.Conn) {
 }
 
 func main() {
-	listener, err := net.Listen("tcp", "localhost:9090")
+	//Get the port from a golang flag at the command line
+	port := flag.String("port", "port", "Insert a port")
+	flag.Parse()
+	//Create listener on port
+	listener, err := net.Listen("tcp", "localhost:"+*port)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,6 +36,6 @@ func main() {
 			log.Print(err) // e.g., connection aborted
 			continue
 		}
-		go handleConn(conn) // handle connections concurrently
+		go handleConn(conn)
 	}
 }
