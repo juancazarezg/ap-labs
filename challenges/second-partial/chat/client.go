@@ -7,33 +7,71 @@
 package main
 
 import (
+	"bufio"
+	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net"
 	"os"
 )
 
+var (
+	dir      = flag.String("server", "localhost", "Default to localhost.")
+	userName = flag.String("user", "user", "Insert an username")
+	reader   = bufio.NewReader(os.Stdin)
+	run      = true
+)
+
 //!+
 func main() {
-	conn, err := net.Dial("tcp", "localhost:8000")
+
+	flag.Parse()
+
+	conn, err := net.Dial("tcp", *dir)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Fprintln(conn, *userName)
+
 	done := make(chan struct{})
+
 	go func() {
-		io.Copy(os.Stdout, conn) // NOTE: ignoring errors
+		buf := make([]byte, 1024)
+		for {
+			n, err := conn.Read(buf)
+			if err != nil {
+				if err != io.EOF {
+					fmt.Println("read error:", err)
+				}
+				break
+			}
+			//In here the command sent gets print on the user console
+			if n > 0 {
+				fmt.Printf("\r" + string(buf[:n]) + *userName + " > ")
+			}
+		}
+		fmt.Printf("\r")
 		log.Println("done")
+		run = false
 		done <- struct{}{} // signal the main goroutine
 	}()
-	mustCopy(conn, os.Stdin)
+	mustCopy(conn)
 	conn.Close()
 	<-done // wait for background goroutine to finish
 }
 
 //!-
 
-func mustCopy(dst io.Writer, src io.Reader) {
-	if _, err := io.Copy(dst, src); err != nil {
-		log.Fatal(err)
+func mustCopy(conn io.Writer) {
+	//In here the command sent gets print on the user console
+	for run {
+		fmt.Printf(*userName + " > ")
+		r, _ := reader.ReadString('\n')
+		_, err := fmt.Fprint(conn, r)
+		if err != nil {
+			break
+		}
 	}
 }
