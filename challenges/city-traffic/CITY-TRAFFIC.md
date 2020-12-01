@@ -16,4 +16,4 @@ $ go run main 5
 
 # Video
 
-[Link to YouTube](https://youtu.be/P0MMW2jMvmI)
+[Link to YouTube](https://youtu.be/4bGevi1Dx7Q)
